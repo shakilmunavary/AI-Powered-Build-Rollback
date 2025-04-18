@@ -17,9 +17,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh """
-                    cp target/*.war /opt/tomcat/webapps/
-                    /opt/tomcat/bin/shutdown.sh
-                    /opt/tomcat/bin/startup.sh
+                    sudo cp target/*.war /opt/tomcat/webapps/
+                    sudo /opt/tomcat/bin/shutdown.sh
+                    sudo /opt/tomcat/bin/startup.sh
                     echo "Application Deployed"
                 """
             }
