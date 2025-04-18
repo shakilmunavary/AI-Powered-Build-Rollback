@@ -2,37 +2,26 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                git 'https://github.com/shakilmunavary/AI-Powered-Jenkins-BuildFailure-Management.git'
+                git 'https://github.com/shakilmunavary/AI-Powered-Build-Rollback.git' // Update with your repo
             }
         }
 
-        stage('Build with Maven') {
+        stage('Build') {
             steps {
-                sh 'mvn clean package'
-            }
-        }
-
-        stage('Run Tests') {
-            steps {
-                sh 'mvn test'
+                sh "mvn clean package"
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploying the application...'
-                // Add deployment steps here (e.g., copying .jar/.war files)
-            }
-        }
-    }
-
-    post {
-        failure {
-            script {
-                // Print the error message
-                echo "Pipeline failed with error: ${currentBuild.rawBuild.getLog(100).join('\n')}"
+                sh """
+                    cp target/*.war /opt/tomcat/webapps/
+                    /opt/tomcat/bin/shutdown.sh
+                    /opt/tomcat/bin/startup.sh
+                    echo "Application Deployed"
+                """
             }
         }
     }
