@@ -64,6 +64,7 @@ pipeline {
             steps {
                 // Add your deployment steps here
                 // For example, you can use the AWS CLI to deploy to an EC2 instance
+                  sh 'echo "Deployment Successful'
             }
         }
     }
