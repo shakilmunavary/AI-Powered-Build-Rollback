@@ -38,19 +38,17 @@ pipeline {
             }
         }
 
-        // Stage 4: Code Quality Analysis
         stage('Code quality Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        mvn sonar:sonar \
-                          -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                          -Dsonar.host.url=${SONAR_URL} \
-                          -Dsonar.login=${SONAR_TOKEN}
-                    '''
-                }
+                sh '''
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                      -Dsonar.host.url=${SONAR_URL} \
+                      -Dsonar.login=${SONAR_TOKEN}
+                '''
             }
         }
+
 
         // Stage 5: Upload Artifacts
         stage('Upload Artifacts') {
