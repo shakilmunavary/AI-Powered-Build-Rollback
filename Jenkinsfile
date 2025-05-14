@@ -1,9 +1,6 @@
 
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-    }
     environment {
         AWS_REGION = 'us-west-2'
         EC2_INSTANCE_ID = 'i-xxxxxxxxxxxxxxxxx'
