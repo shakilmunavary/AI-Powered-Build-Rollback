@@ -49,11 +49,16 @@ pipeline {
             }
         }
 
-
-        // Stage 5: Upload Artifacts
-        stage('Upload Artifacts') {
+     stage('Publish to Nexus') {
             steps {
-                sh 'mvn deploy -DuploadUrl=${NEXUS_URL}/repository/maven-snapshots/ -DrepositoryId=nexus-snapshots'
+                withCredentials([string(credentialsId: 'NEXUS_API_KEY', variable: 'NEXUS_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'NEXUS_URL', variable: 'NEXUS_URL')]) {
+                        sh '''
+                            curl -v -X PUT -H "Authorization: Bearer $NEXUS_TOKEN" --upload-file target/*.jar \
+                            $NEXUS_URL
+                        '''
+                    }
+                }
             }
         }
 
