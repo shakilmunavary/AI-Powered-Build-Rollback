@@ -55,7 +55,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'NEXUS_URL', variable: 'NEXUS_URL')]) {
                         sh '''
                             ls -ltr
-                            // curl -v -X PUT -H "Authorization: Bearer $NEXUS_TOKEN" --upload-file target/*.jar $NEXUS_URL
+                            curl -v -X PUT -H "Authorization: Bearer $NEXUS_TOKEN" --upload-file target/*.jar   $NEXUS_URL/AI-CI-CD/
                         '''
                     }
                 }
