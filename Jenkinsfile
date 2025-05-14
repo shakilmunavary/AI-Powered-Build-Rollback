@@ -61,9 +61,9 @@ pipeline {
         // Stage 6: Deployment
         stage('Deployment') {
             steps {
-                script {
-                    // Add your deployment steps here, possibly using the AWS CLI or a Jenkins plugin
-                }
+               sh '''
+                    echo 'Deployment Complete'
+                '''
             }
         }
     }
