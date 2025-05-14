@@ -1,69 +1,57 @@
-// Recommendation: Use declarative pipeline syntax for better readability and maintainability
+# Recommendations
+1. It is recommended to use a separate branch for development and merge it to the main branch once the development is complete.
+2. It's good practice to use a versioning system like SemVer for your application.
+3. Implement a rollback mechanism in case of deployment failures.
+4. Implement a monitoring system to keep track of the application's health and performance.
+
+# Pipeline
 pipeline {
     agent any
-
-    // Recommendation: Parameterize the pipeline for better flexibility
-    parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'The branch to build')
+    tools {
+        maven 'Maven'
     }
-
-    // Recommendation: Use environment variables for security and ease of use
     environment {
-        NEXUS_URL = credentials('NEXUS_URL')
-        NEXUS_API_KEY = credentials('NEXUS_API_KEY')
-        SONAR_TOKEN = credentials('SONAR_TOKEN')
-        SONAR_URL = credentials('SONAR_URL')
-        NEXUS_USERNAME = credentials('NEXUS_USERNAME')
-        NEXUS_PASSWORD = credentials('NEXUS_PASSWORD')
+        AWS_REGION = 'us-west-2'
+        EC2_INSTANCE_ID = 'i-xxxxxxxxxxxxxxxxx'
+        NEXUS_URL = 'your_nexus_url'
+        SONAR_URL = 'your_sonar_url'
+        SONAR_TOKEN = credentials('sonarToken')
+        NEXUS_USERNAME = credentials('nexusUsername')
+        NEXUS_PASSWORD = credentials('nexusPassword')
+        GITHUB_API_KEY = credentials('githubApiKey')
     }
-
     stages {
-        // Stage 1: Code Checkout
         stage('Code Checkout') {
             steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: "${params.BRANCH_NAME}"]],
-                    userRemoteConfigs: [[url: 'https://github.com/shakilmunavary/AI-Powered-Pipeline-Creation.git', credentialsId: 'GitHubCredentials']]
-                ])
+                git branch: 'main', url: 'https://github.com/shakilmunavary/AI-Powered-Pipeline-Creation'
             }
         }
-
-        // Stage 2: Build
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                sh 'mvn -B -DskipTests clean package'
             }
         }
-
-        // Stage 3: Unit Testing
         stage('Unit Testing') {
             steps {
                 sh 'mvn test'
             }
         }
-
-        // Stage 4: Code Quality Analysis
         stage('Code Quality Analysis') {
             steps {
-                sh 'mvn sonar:sonar -Dsonar.projectKey=AI-TEST -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN'
+                sh "mvn sonar:sonar -Dsonar.projectKey=AI-TEST -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN"
             }
         }
-
-        // Stage 5: Upload Artifacts
         stage('Upload Artifacts') {
             steps {
-                sh '''
-                    curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file ./target/AI-Powered-Pipeline-Creation.jar $NEXUS_URL/repository/AI-CI-CD/AI-Powered-Pipeline-Creation.jar
-                '''
+                sh "curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file target/AI-Powered-Pipeline-Creation.jar $NEXUS_URL/repository/AI-CI-CD/"
             }
         }
-
-        // Stage 6: Deployment
         stage('Deployment') {
             steps {
-               sh '''
-                    echo 'Deployment Complete'
-                '''
+                sh 'aws ec2 start-instances --instance-ids $EC2_INSTANCE_ID --region $AWS_REGION'
+                sh 'ssh -o StrictHostKeyChecking=no ec2-user@your_ec2_instance_public_dns scp -o StrictHostKeyChecking=no target/AI-Powered-Pipeline-Creation.jar .'
+                sh 'ssh -o StrictHostKeyChecking=no ec2-user@your_ec2_instance_public_dns java -jar AI-Powered-Pipeline-Creation.jar'
+                sh 'echo "Successfully deployed"'
             }
         }
     }
