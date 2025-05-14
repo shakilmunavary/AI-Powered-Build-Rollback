@@ -1,10 +1,4 @@
-# Recommendations
-1. It is recommended to use a separate branch for development and merge it to the main branch once the development is complete.
-2. It's good practice to use a versioning system like SemVer for your application.
-3. Implement a rollback mechanism in case of deployment failures.
-4. Implement a monitoring system to keep track of the application's health and performance.
 
-# Pipeline
 pipeline {
     agent any
     tools {
